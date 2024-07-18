@@ -172,7 +172,7 @@ class LinkedListVisualizer(tk.Tk):
 
         self.position_entry = tk.Entry(control_frame)
         self.position_entry.grid(row=0, column=1, padx=5)
-        self.position_entry.insert(0, "Position")
+        self.position_entry.insert(0, "Position, start with [0]")
 
         button_width = 15
         button_height = 1
