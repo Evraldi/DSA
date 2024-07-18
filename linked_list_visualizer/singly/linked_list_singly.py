@@ -148,6 +148,9 @@ class LinkedList:
             return merge(left, right)
 
         self.head = merge_sort_rec(self.head)
+        
+    def clear_list(self):
+        self.head = None
 
 class LinkedListVisualizer(tk.Tk):
     def __init__(self):
@@ -215,6 +218,9 @@ class LinkedListVisualizer(tk.Tk):
 
         load_button = tk.Button(control_frame, text="Load List", command=self.load_list, width=button_width, height=button_height)
         load_button.grid(row=2, column=3, padx=5)
+        
+        clear_button = tk.Button(control_frame, text="Clear List", command=self.clear_list, width=button_width, height=button_height)
+        clear_button.grid(row=3, column=3, padx=5)
 
     def add_node(self):
         try:
@@ -223,12 +229,10 @@ class LinkedListVisualizer(tk.Tk):
             messagebox.showerror("Invalid input", "Please enter an integer value.")
             return
     
-        def add_operation():
-            self.linked_list.append(data)
-            self.update_visualization()
-    
-        self.queue_operation(add_operation)
-
+        self.linked_list.append(data)
+        self.update_visualization()
+        
+    '''
     def queue_operation(self, operation):
         self.operations.append(operation)
         if not self.processing:
@@ -238,11 +242,12 @@ class LinkedListVisualizer(tk.Tk):
         if self.operations:
             self.processing = True
             operation = self.operations.pop(0)
-            operation()  # Execute the operation
-            self.after(500, self.process_next_operation)  # Schedule the next operation
+            operation()
+            self.after(500, self.process_next_operation)
         else:
             self.processing = False
-
+    '''
+    
     def delete_node(self):
         try:
             data = int(self.entry.get())
@@ -365,6 +370,10 @@ class LinkedListVisualizer(tk.Tk):
                     self.linked_list.append(int(line.strip()))
             self.update_visualization()
             messagebox.showinfo("Load List", f"List loaded from {filename}")
+    
+    def clear_list(self):
+        self.linked_list.clear_list()
+        self.update_visualization()
 
 if __name__ == "__main__":
     app = LinkedListVisualizer()
