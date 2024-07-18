@@ -40,22 +40,28 @@ class LinkedList:
         new_node.next = current.next
         current.next = new_node
 
-    def delete(self, data):
+    def delete_at_position(self, data, pos):
+        if pos == 0:
+            self.delete_from_beginning()
+            return
+
         temp = self.head
-        if temp is not None:
-            if temp.data == data:
-                self.head = temp.next
-                temp = None
-                return
-        while temp is not None:
-            if temp.data == data:
-                break
+        prev = None
+        current_pos = 0
+
+        while temp and current_pos != pos:
             prev = temp
             temp = temp.next
-        if temp == None:
-            return
-        prev.next = temp.next
-        temp = None
+            current_pos += 1
+            
+        if temp and temp.data == data:
+            if prev:
+                prev.next = temp.next
+            else:
+                self.head = temp.next
+            temp = None
+        else:
+            messagebox.showinfo("Delete Node", f"Node with data {data} at position {pos} not found in the list.")
 
     def delete_from_beginning(self):
         if self.head is None:
@@ -152,6 +158,8 @@ class LinkedListVisualizer(tk.Tk):
         self.canvas.pack(pady=20)
         self.linked_list = LinkedList()
         self.node_positions = {}
+        self.operations = []
+        self.processing = False
         self.create_controls()
         self.update_visualization()
 
@@ -166,50 +174,47 @@ class LinkedListVisualizer(tk.Tk):
         self.position_entry.grid(row=0, column=1, padx=5)
         self.position_entry.insert(0, "Position")
 
-        button_width = 15  # Define the button width
-        button_height = 1  # Define the button height
+        button_width = 15
+        button_height = 1
 
-        add_button = tk.Button(control_frame, text="Add Node", command=self.add_node, width=button_width, height=button_height)
-        add_button.grid(row=0, column=2, padx=5)
-
-        delete_button = tk.Button(control_frame, text="Delete Node", command=self.delete_node, width=button_width, height=button_height)
-        delete_button.grid(row=0, column=3, padx=5)
-
-        insert_begin_button = tk.Button(control_frame, text="Insert at Beginning", command=self.insert_at_beginning, width=button_width, height=button_height)
+        insert_begin_button = tk.Button(control_frame, text="Insert at Head", command=self.insert_at_beginning, width=button_width, height=button_height)
         insert_begin_button.grid(row=1, column=0, padx=5)
 
-        insert_end_button = tk.Button(control_frame, text="Insert at End", command=self.add_node, width=button_width, height=button_height)
-        insert_end_button.grid(row=1, column=1, padx=5)
+        insert_end_button = tk.Button(control_frame, text="Insert at Tail", command=self.add_node, width=button_width, height=button_height)
+        insert_end_button.grid(row=2, column=0, padx=5)
 
         insert_pos_button = tk.Button(control_frame, text="Insert at Position", command=self.insert_at_position, width=button_width, height=button_height)
-        insert_pos_button.grid(row=1, column=2, padx=5)
+        insert_pos_button.grid(row=3, column=0, padx=5)
 
-        delete_begin_button = tk.Button(control_frame, text="Delete from Beginning", command=self.delete_from_beginning, width=button_width, height=button_height)
-        delete_begin_button.grid(row=1, column=3, padx=5)
+        delete_begin_button = tk.Button(control_frame, text="Delete at Head", command=self.delete_from_beginning, width=button_width, height=button_height)
+        delete_begin_button.grid(row=1, column=1, padx=5)
 
-        delete_end_button = tk.Button(control_frame, text="Delete from End", command=self.delete_from_end, width=button_width, height=button_height)
-        delete_end_button.grid(row=2, column=0, padx=5)
+        delete_end_button = tk.Button(control_frame, text="Delete at Tail", command=self.delete_from_end, width=button_width, height=button_height)
+        delete_end_button.grid(row=2, column=1, padx=5)
+        
+        delete_button = tk.Button(control_frame, text="Delete at Position", command=self.delete_node, width=button_width, height=button_height)
+        delete_button.grid(row=3, column=1, padx=5)
 
         search_button = tk.Button(control_frame, text="Search Node", command=self.search_node, width=button_width, height=button_height)
-        search_button.grid(row=2, column=1, padx=5)
+        search_button.grid(row=1, column=2, padx=5)
 
         length_button = tk.Button(control_frame, text="Get Length", command=self.get_length, width=button_width, height=button_height)
-        length_button.grid(row=2, column=2, padx=5)
+        length_button.grid(row=0, column=2, padx=5)
 
         traverse_button = tk.Button(control_frame, text="Traverse List", command=self.traverse_list, width=button_width, height=button_height)
-        traverse_button.grid(row=2, column=3, padx=5)
+        traverse_button.grid(row=2, column=2, padx=5)
 
         reverse_button = tk.Button(control_frame, text="Reverse List", command=self.reverse_list, width=button_width, height=button_height)
         reverse_button.grid(row=3, column=2, padx=5)
 
         sort_button = tk.Button(control_frame, text="Sort List", command=self.sort_list, width=button_width, height=button_height)
-        sort_button.grid(row=3, column=3, padx=5)
+        sort_button.grid(row=0, column=3, padx=5)
 
         save_button = tk.Button(control_frame, text="Save List", command=self.save_list, width=button_width, height=button_height)
-        save_button.grid(row=3, column=0, padx=5)
+        save_button.grid(row=1, column=3, padx=5)
 
         load_button = tk.Button(control_frame, text="Load List", command=self.load_list, width=button_width, height=button_height)
-        load_button.grid(row=3, column=1, padx=5)
+        load_button.grid(row=2, column=3, padx=5)
 
     def add_node(self):
         try:
@@ -217,16 +222,40 @@ class LinkedListVisualizer(tk.Tk):
         except ValueError:
             messagebox.showerror("Invalid input", "Please enter an integer value.")
             return
-        self.linked_list.append(data)
-        self.update_visualization()
+    
+        def add_operation():
+            self.linked_list.append(data)
+            self.update_visualization()
+    
+        self.queue_operation(add_operation)
+
+    def queue_operation(self, operation):
+        self.operations.append(operation)
+        if not self.processing:
+            self.process_next_operation()
+
+    def process_next_operation(self):
+        if self.operations:
+            self.processing = True
+            operation = self.operations.pop(0)
+            operation()  # Execute the operation
+            self.after(500, self.process_next_operation)  # Schedule the next operation
+        else:
+            self.processing = False
 
     def delete_node(self):
         try:
             data = int(self.entry.get())
+            pos = int(self.position_entry.get())
         except ValueError:
-            messagebox.showerror("Invalid input", "Please enter an integer value.")
+            messagebox.showerror("Invalid input", "Please enter a position as an integer.")
             return
-        self.linked_list.delete(data)
+        
+        if pos < 0 or pos >= self.linked_list.length():
+            messagebox.showerror("Invalid Position", "Position is out of range.")
+            return
+        
+        self.linked_list.delete_at_position(data, pos)
         self.update_visualization()
 
     def insert_at_beginning(self):
@@ -245,14 +274,25 @@ class LinkedListVisualizer(tk.Tk):
         except ValueError:
             messagebox.showerror("Invalid input", "Please enter the data and position as integers.")
             return
+
+        if pos < 0 or pos > self.linked_list.length():
+            messagebox.showerror("Invalid Position", "Position must be within the range of the list.")
+            return
+
         self.linked_list.insert_at_position(data, pos)
         self.update_visualization()
 
     def delete_from_beginning(self):
+        if self.linked_list.head is None:
+            messagebox.showerror("Empty List", "Cannot delete from an empty list.")
+            return
         self.linked_list.delete_from_beginning()
         self.update_visualization()
 
     def delete_from_end(self):
+        if self.linked_list.head is None:
+            messagebox.showerror("Empty List", "Cannot delete from an empty list.")
+            return
         self.linked_list.delete_from_end()
         self.update_visualization()
 
@@ -262,20 +302,11 @@ class LinkedListVisualizer(tk.Tk):
         except ValueError:
             messagebox.showerror("Invalid input", "Please enter an integer value.")
             return
-        current = self.linked_list.head
-        found = False
-        while current:
-            x, y = self.node_positions[current]
-            if current.data == data:
-                self.canvas.create_oval(x-20, y-20, x+20, y+20, fill="green")
-                self.canvas.create_text(x, y, text=str(current.data))
-                self.update()
-                time.sleep(1)
-                found = True
-            current = current.next
-        if not found:
+        
+        if self.linked_list.search(data):
+            messagebox.showinfo("Search Result", f"Node with data {data} found in the list.")
+        else:
             messagebox.showinfo("Search Result", f"Node with data {data} not found in the list.")
-        self.update_visualization()
 
     def get_length(self):
         length = self.linked_list.length()
@@ -302,20 +333,14 @@ class LinkedListVisualizer(tk.Tk):
             self.node_positions[current] = (x, y)
             self.canvas.create_oval(x-20, y-20, x+20, y+20, fill="lightblue")
             self.canvas.create_text(x, y, text=str(current.data))
+            if current is self.linked_list.head:
+                self.canvas.create_text(x-30, y-30, text="Head", anchor=tk.CENTER, font=("Arial", 10, "bold"))
+            if current.next is None:
+                self.canvas.create_text(x+30, y-30, text="Tail", anchor=tk.CENTER, font=("Arial", 10, "bold"))
             if current.next:
                 self.canvas.create_line(x+20, y, x+80-20, y, arrow=tk.LAST)
             x += 80
             current = current.next
-        self.animate_linked_list()
-
-    def animate_linked_list(self):
-        for node, (x, y) in self.node_positions.items():
-            self.canvas.create_oval(x-20, y-20, x+20, y+20, fill="yellow")
-            self.canvas.create_text(x, y, text=str(node.data))
-            self.update()
-            time.sleep(0.5)
-            self.canvas.create_oval(x-20, y-20, x+20, y+20, fill="lightblue")
-            self.canvas.create_text(x, y, text=str(node.data))
 
     def save_list(self):
         filename = filedialog.asksaveasfilename(defaultextension=".txt",
@@ -340,7 +365,7 @@ class LinkedListVisualizer(tk.Tk):
                     self.linked_list.append(int(line.strip()))
             self.update_visualization()
             messagebox.showinfo("Load List", f"List loaded from {filename}")
-            
+
 if __name__ == "__main__":
     app = LinkedListVisualizer()
     app.mainloop()
