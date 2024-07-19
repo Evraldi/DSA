@@ -354,27 +354,44 @@ class DoublyLinkedListVisualizer(tk.Tk):
         current = self.linked_list.head
         x, y = 50, 200
         self.node_positions.clear()
+
         while current:
             self.node_positions[current] = (x, y)
             self.canvas.create_oval(x-20, y-20, x+20, y+20, fill="lightblue")
             self.canvas.create_text(x, y, text=str(current.data))
+            
+            if current is self.linked_list.head:
+                self.canvas.create_text(x-30, y-30, text="Head", anchor=tk.CENTER, font=("Arial", 10, "bold"))
+            if current.next is None:
+                self.canvas.create_text(x+30, y-30, text="Tail", anchor=tk.CENTER, font=("Arial", 10, "bold"))
+            
             if current.prev:
-                self.canvas.create_line(x-80, y, x-20, y, arrow=tk.BOTH)
+                self.canvas.create_line(x-60, y, x-20, y, arrow=tk.BOTH)
             if current.next:
-                self.canvas.create_line(x+20, y, x+80, y, arrow=tk.BOTH)
+                self.canvas.create_line(x+20, y, x+60, y, arrow=tk.BOTH)
+            
             x += 80
             current = current.next
-        self.animate_linked_list()
 
-    def animate_linked_list(self):
-        for node, (x, y) in self.node_positions.items():
-            self.canvas.create_oval(x-20, y-20, x+20, y+20, fill="yellow")
-            self.canvas.create_text(x, y, text=str(node.data))
-            self.update()
-            time.sleep(0.5)
+    """        
+    def update_visualization(self):
+        self.canvas.delete("all")
+        current = self.linked_list.head
+        x, y = 50, 200
+        self.node_positions.clear()
+        while current:
+            self.node_positions[current] = (x, y)
             self.canvas.create_oval(x-20, y-20, x+20, y+20, fill="lightblue")
-            self.canvas.create_text(x, y, text=str(node.data))
-
+            self.canvas.create_text(x, y, text=str(current.data))
+            if current is self.linked_list.head:
+                self.canvas.create_text(x-30, y-30, text="Head", anchor=tk.CENTER, font=("Arial", 10, "bold"))
+            if current.next is None:
+                self.canvas.create_text(x+30, y-30, text="Tail", anchor=tk.CENTER, font=("Arial", 10, "bold"))
+            if current.next:
+                self.canvas.create_line(x+20, y, x+80-20, y, arrow=tk.LAST)
+            x += 80
+            current = current.next
+    """
     def save_list(self):
         filename = filedialog.asksaveasfilename(defaultextension=".txt", filetypes=[("Text files", "*.txt")])
         if filename:

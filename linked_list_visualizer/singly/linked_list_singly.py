@@ -1,6 +1,5 @@
 import tkinter as tk
 from tkinter import messagebox
-import time
 from tkinter import filedialog
 
 class Node:
