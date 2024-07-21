@@ -12,6 +12,8 @@ Textfield targetTextfield;
 Textlabel errorLabel;
 Slider speedSlider;
 int animationSpeed = 10; // Kecepatan default animasi
+int previousMillis = 0;  // Untuk timing animasi
+int interval = 1000; // Interval antara frame
 
 void setup() {
   size(1200, 900); // Ukuran layar 
@@ -77,7 +79,7 @@ void draw() {
   int barWidth = width / arr.length;
 
   animationSpeed = (int) speedSlider.getValue();
-  frameRate(animationSpeed);
+  interval = 1000 / animationSpeed; // Adjust interval based on speed slider
 
   // Area untuk animasi (bagian atas jendela)
   fill(255);
@@ -109,14 +111,18 @@ void draw() {
 
   // Logika pencarian linear
   if (startButtonClicked) {
-    if (currentIndex < arr.length) {
-      path[currentIndex] = true;
-      if (arr[currentIndex] == Integer.parseInt(targetTextfield.getText())) {
-        foundIndices.add(currentIndex);
+    int currentMillis = millis();
+    if (currentMillis - previousMillis >= interval) {
+      previousMillis = currentMillis;
+      if (currentIndex < arr.length) {
+        path[currentIndex] = true;
+        if (arr[currentIndex] == parseInt(targetTextfield.getText())) {
+          foundIndices.add(currentIndex);
+        }
+        currentIndex++;
+      } else if (resetButtonClicked) {
+        reset();
       }
-      currentIndex++;
-    } else if (resetButtonClicked) {
-      reset();
     }
   }
 }
@@ -137,4 +143,5 @@ void reset() {
   for (int i = 0; i < path.length; i++) {
     path[i] = false;
   }
+  previousMillis = millis(); // Reset timing
 }
