@@ -33,17 +33,17 @@ class CircularSinglyLinkedList:
             self.head = new_node
             self.tail.next = new_node
 
-    def delete(self, key: int) -> None:
+    def delete(self, key: int) -> bool:
         if self.is_empty():
             print("List is empty.")
-            return
+            return False
 
         current = self.head
         previous = None
 
         while True:
             if current.data == key:
-                if previous is not None:
+                if previous:
                     previous.next = current.next
                     if current == self.tail:
                         self.tail = previous
@@ -58,7 +58,7 @@ class CircularSinglyLinkedList:
                         temp.next = current.next
                         self.head = current.next
                         self.tail.next = self.head
-                return
+                return True
 
             previous = current
             current = current.next
@@ -66,6 +66,8 @@ class CircularSinglyLinkedList:
             if current == self.head:
                 break
         print("Key not found.")
+        return False
+
 
     def display(self) -> None:
         if self.is_empty():
