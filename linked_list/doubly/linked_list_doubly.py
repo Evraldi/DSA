@@ -365,7 +365,8 @@ class DoublyLinkedListVisualizer(tk.Tk):
             if current.next is None:
                 self.canvas.create_text(x+30, y-30, text="Tail", anchor=tk.CENTER, font=("Arial", 10, "bold"))
             
-            if current.prev:
+            # Only draw prev arrow if not head node
+            if current.prev and current is not self.linked_list.head:
                 self.canvas.create_line(x-60, y, x-20, y, arrow=tk.BOTH)
             if current.next:
                 self.canvas.create_line(x+20, y, x+60, y, arrow=tk.BOTH)
