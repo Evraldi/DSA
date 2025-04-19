@@ -150,7 +150,8 @@ def draw_stack():
 
     # Draw "TOP" indicator if stack is not empty
     if stack:
-        # Calculate top position with new spacing and starting position (with padding)
+        # Calculate the position of the first item in the stack (which is the top in the visualization)
+        # The TOP indicator should point to the item at index 0 (the first item in the stack)
         top_y = item_start_y + (ITEM_HEIGHT + stack_spacing) * (STACK_SIZE - len(stack))
 
         # Increased distance from stack border
@@ -274,15 +275,15 @@ def push():
     if len(stack) < STACK_SIZE:
         # Generate a random value between 1 and 99 for more interesting visualization
         value = pygame.time.get_ticks() % 99 + 1
-        stack.append(value)  # Push item with random value
-        display_message(f"Pushed {stack[-1]}")
+        stack.insert(0, value)  # Push item to the front of the list (top of the stack in visualization)
+        display_message(f"Pushed {stack[0]}")
     else:
         display_message("Stack is full!")
 
 def pop():
     """Pop an item from the stack."""
     if stack:
-        item = stack.pop()
+        item = stack.pop(0)  # Pop the first item (top of the stack in visualization)
         display_message(f"Popped {item}")
     else:
         display_message("Stack is empty!")
@@ -290,7 +291,7 @@ def pop():
 def peek():
     """Peek at the top item of the stack."""
     if stack:
-        item = stack[-1]
+        item = stack[0]  # Get the first item (top of the stack in the visualization)
         display_message(f"Top item: {item}")
     else:
         display_message("Stack is empty!")
