@@ -163,10 +163,122 @@ void drawHeapTree() {
   int maxLevel = int(log(n) / log(2)) + 1;
   int nodeSize = min(40, int(treeViewWidth / pow(2, maxLevel - 1) * 0.8));
 
-  // Draw the tree nodes
-  drawTreeNode(0, treeViewX + treeViewWidth / 2, treeViewY + 50, nodeSize, 0, treeViewWidth / 4);
+  // Root node position
+  float rootX = treeViewX + treeViewWidth / 2;
+  float rootY = treeViewY + 50;
+
+  // Draw the root node (index 0)
+  if (0 < heapSize) {
+    drawNode(0, rootX, rootY, nodeSize);
+
+    // Calculate positions for index 1 and 2 with wider spacing
+    float childY = rootY + 60;
+    float xOffset = treeViewWidth / 3.5; // Wider spacing for first level
+
+    // Draw left child (index 1) if exists
+    if (1 < heapSize) {
+      float leftX = rootX - xOffset;
+      // Draw line to left child
+      stroke(70, 130, 180);
+      strokeWeight(1);
+      line(rootX, rootY + nodeSize/2, leftX, childY - nodeSize/2);
+      // Draw left child and its subtree
+      drawNode(1, leftX, childY, nodeSize);
+      // Draw subtree rooted at index 1
+      drawSubtree(1, leftX, childY, nodeSize, treeViewWidth / 6);
+    }
+
+    // Draw right child (index 2) if exists
+    if (2 < heapSize) {
+      float rightX = rootX + xOffset;
+      // Draw line to right child
+      stroke(70, 130, 180);
+      strokeWeight(1);
+      line(rootX, rootY + nodeSize/2, rightX, childY - nodeSize/2);
+      // Draw right child and its subtree
+      drawNode(2, rightX, childY, nodeSize);
+      // Draw subtree rooted at index 2
+      drawSubtree(2, rightX, childY, nodeSize, treeViewWidth / 6);
+    }
+  }
 }
 
+// Helper function to draw a single node
+void drawNode(int index, float x, float y, int nodeSize) {
+  // Determine node color
+  if (sorted && index >= sortedIndex) {
+    fill(0, 200, 0); // Green for sorted elements
+  } else if (swapping && (index == swapIndex1 || index == swapIndex2)) {
+    fill(255, 165, 0); // Orange for swapping elements
+  } else if (currentIndex >= 0 && index == currentIndex) {
+    fill(255, 0, 0); // Red for current node being heapified
+  } else if (parentIndex >= 0 && index == parentIndex) {
+    fill(255, 0, 255); // Purple for parent node
+  } else if (buildingHeap && currentIndex >= 0 && index > currentIndex) {
+    fill(200, 200, 200); // Gray for nodes not yet heapified
+  } else {
+    fill(100, 149, 237); // Blue for heapified nodes
+  }
+
+  // Draw node
+  stroke(0);
+  strokeWeight(1);
+  ellipse(x, y, nodeSize, nodeSize);
+
+  // Draw node value
+  fill(0);
+  textSize(12);
+  textAlign(CENTER, CENTER);
+  text(arr[index], x, y);
+
+  // Draw index below node
+  fill(100);
+  textSize(10);
+  text("[" + index + "]", x, y + nodeSize/2 + 10);
+}
+
+// Function to draw subtree starting from a given node
+void drawSubtree(int index, float x, float y, int nodeSize, float xOffset) {
+  if (index >= heapSize) return;
+
+  // Calculate child indices
+  int leftChild = 2 * index + 1;
+  int rightChild = 2 * index + 2;
+
+  // Calculate new y position for children
+  float newY = y + 60;
+
+  // Calculate new x offset for next level
+  float newXOffset = xOffset * 0.6;
+
+  // Draw left child if exists
+  if (leftChild < heapSize) {
+    float leftX = x - newXOffset;
+    // Draw line to left child
+    stroke(70, 130, 180);
+    strokeWeight(1);
+    line(x, y + nodeSize/2, leftX, newY - nodeSize/2);
+    // Draw left child
+    drawNode(leftChild, leftX, newY, nodeSize);
+    // Recursively draw left subtree
+    drawSubtree(leftChild, leftX, newY, nodeSize, newXOffset);
+  }
+
+  // Draw right child if exists
+  if (rightChild < heapSize) {
+    float rightX = x + newXOffset;
+    // Draw line to right child
+    stroke(70, 130, 180);
+    strokeWeight(1);
+    line(x, y + nodeSize/2, rightX, newY - nodeSize/2);
+    // Draw right child
+    drawNode(rightChild, rightX, newY, nodeSize);
+    // Recursively draw right subtree
+    drawSubtree(rightChild, rightX, newY, nodeSize, newXOffset);
+  }
+}
+
+// Original tree drawing function (kept for reference but not used)
 void drawTreeNode(int index, float x, float y, int nodeSize, int level, float xOffset) {
   if (index >= heapSize) return;
 
